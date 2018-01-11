@@ -1,10 +1,14 @@
 package kata6.main;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import kata6.Attribute;
 import kata6.model.Histogram;
 import kata6.model.Mail;
+import kata6.model.Person;
+import kata6.view.DataBaseList;
 import kata6.view.HistogramBuilder;
 import kata6.view.HistogramDisplay;
 import kata6.view.MailHistogramBuilder;
@@ -21,8 +25,9 @@ public class Kata6 {
     
     private Histogram<String> dominios;
     private Histogram<Character> caracter;
+    private Histogram<Character> gender;
+    private Histogram<Float> weight;
     private ArrayList <Mail> mailList;
-    private ArrayList <String> mailListDominios;
     private Histogram histogram;
     
     private void execute () throws Exception{
@@ -37,7 +42,7 @@ public class Kata6 {
         
     }
 
-    private void process() {
+    private void process() throws ClassNotFoundException, SQLException {
         histogram = MailHistogramBuilder.build(mailList);
 
         HistogramBuilder<Mail> builder = new HistogramBuilder<>(mailList);
@@ -56,11 +61,30 @@ public class Kata6 {
             }
         });
         
+        ArrayList<Person> people = (ArrayList<Person>) DataBaseList.read();
+        HistogramBuilder<Person> builderPerson = new HistogramBuilder<>(people);
+        
+        gender = builderPerson.build(new Attribute<Person, Character>(){
+            @Override
+            public Character get(Person item){
+                return item.getGender();
+            }
+        });
+        
+        weight = builderPerson.build(new Attribute<Person, Float>(){
+            @Override
+            public Float get(Person item){
+                return item.getWeight();
+            }
+        });
+        
     }
 
     private void output() {
         new HistogramDisplay(histogram).execute();
         new HistogramDisplay(dominios).execute();
         new HistogramDisplay(caracter).execute();
+        new HistogramDisplay(gender).execute();
+        new HistogramDisplay(weight).execute();
     }
 }
